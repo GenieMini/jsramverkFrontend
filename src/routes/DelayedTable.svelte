@@ -1,7 +1,7 @@
 <script>
     export let port;
 
-    import { onMount } from 'svelte';
+    // import { onMount } from 'svelte';
     import DelayedItem from './DelayedItem.svelte';
     
     let promise = getDelayData();
@@ -16,8 +16,10 @@
         return res;
     }
 
+    /*
     onMount(() => {
 	});
+    */
 </script>
 
 <div class="delayed">
