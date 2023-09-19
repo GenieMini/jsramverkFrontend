@@ -1,73 +1,160 @@
 <script>
     export let data;
 
-    import DelayedTable from "./DelayedTable.svelte";
-    import LeafletMap from "./LeafletMap.svelte";
+    import { outputDelay } from "./utils";
+    import { renderMainView } from "./utils";
+    import { renderTicketView } from "./utils";
+    // import { onMount } from 'svelte';
 
-    // let newTicketId = 0;
+    let reasonCodes = getReasonCodes();
+    let existingTickets = getExistingTickets();
 
-    var locationString = "";
+    /*
+    onMount(() => {
+	});
+    */
 
-    if (data.FromLocation) {
-         locationString = `Tåg från ${data.FromLocation[0].LocationName} till ${data.ToLocation[0].LocationName}. Just nu i ${data.LocationSignature}.`;
-    }
+    // Get all reason codes from api using /codes route
+    async function getReasonCodes() {
+        try {
+            const result = await fetch("http://localhost:1337/codes");
+            const res = await result.json();
 
-    // Duplicate
-    function outputDelay(item) {
-        let advertised = new Date(item.AdvertisedTimeAtLocation);
-        let estimated = new Date(item.EstimatedTimeAtLocation);
-
-        const diff = Math.abs(estimated - advertised);
-
-        return Math.floor(diff / (1000 * 60)) + " minuter";
-    }
-
-    function renderMainView() {
-        let container = document.getElementById("container");
-
-        // Remove existing children from container
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
+            return res.data;
+        } catch(e) {
+            console.log(e);
         }
+    }
 
-        // Append new components to container
-        const delayedTable = new DelayedTable({
-            target: container,
-            props: {port: 1337}
-        });
+    // Get all existing tickets in db from /tickets route
+    async function getExistingTickets() {
+        try {
+            const result = await fetch("http://localhost:1337/tickets");
+            const res = await result.json();
 
-        const leafletMap = new LeafletMap({
-            target: container,
-            props: {port: 1337}
-        });
+            return res.data;
+        } catch(e) {
+            console.log(e);
+        }
+    }
+
+    // Create a new ticket and add it to db by posting to /tickets route
+    async function createNewTicket() {
+        const reasonCodeSelect = document.getElementById("reason-code");
+
+        const newTicket = {
+            code: reasonCodeSelect.value,
+            trainnumber: data.OperationalTrainNumber,
+            traindate: data.EstimatedTimeAtLocation.substring(0, 10),
+        };
+
+        try {
+            await fetch("http://localhost:1337/tickets", {
+                body: JSON.stringify(newTicket),
+                headers: {
+                'content-type': 'application/json'
+                },
+                method: 'POST'
+            });
+
+            renderTicketView(data);
+        } catch(e) {
+            console.log(e);
+        }
     }
 </script>
 
 <div class="ticket-container">
-    <div class="ticket">
-        <a on:click={renderMainView} on:keypress={renderMainView} role="button" tabindex="0" href="" id="back">&larr; Tillbaka</a>
+    <!-- Back Button -->
+    <button on:click={renderMainView}>&larr; Tillbaka</button>
 
-        <h1>Nytt ärende #<span id="new-ticket-id"></span></h1>
+    <h1>Nytt ärende</h1>
         
-        <h3>{locationString}</h3>
+    <!-- Train Info -->
+    <div class="train-info">
+        <h3>
+            Tåg {data.OperationalTrainNumber}.
 
-        <p><strong>Försenad:</strong> {outputDelay(data)}</p>
+            {#if data.FromLocation}
+                Från {data.FromLocation[0].LocationName}
+                till {data.ToLocation[0].LocationName}.
+            {/if}
 
-        <form id="new-ticket-form">
-            <label>Orsakskod</label><br>
-            <select id="reason-code"></select><br><br>
+            Just nu i {data.LocationSignature}.
+        </h3>
+        
+        <p>Försenad: {outputDelay(data)}</p>
+    </div>
+
+    <!-- New Ticket -->
+    <div class="new-ticket">
+        <form on:submit|preventDefault={createNewTicket}>
+            <label for="reason-code">Orsakskod:</label>
+
+            <select id="reason-code">
+                {#await reasonCodes}
+                    <p>Fetching data...</p>
+                {:then reasonCodes}
+                    {#each reasonCodes as reasonCode}
+                        <option value={reasonCode.Code}>{reasonCode.Code} - {reasonCode.Level3Description}</option>
+                    {/each}
+                {/await}
+            </select>
+            
             <input type="submit" value="Skapa nytt ärende" />
         </form>
     </div>
-    <br>
 
-    <div class="old-tickets" id="old-tickets">
+    <!-- Existing Tickets -->
+    <div class="existing-tickets">
         <h2>Befintliga ärenden</h2>
+
+        {#await existingTickets}
+            <p>Fetching data...</p>
+        {:then existingTickets}
+            {#each existingTickets as existingTicket}
+                <p> 
+                    {existingTicket._id} - 
+                    {existingTicket.code} - 
+                    {existingTicket.trainnumber} - 
+                    {existingTicket.traindate}
+                </p>
+            {/each}
+        {/await}
     </div>
 </div>
 
 <style>
     .ticket-container {
         padding: 2rem;
+    }
+
+    .ticket-container > * {
+        margin-bottom: 1.4rem;
+    }
+
+    button {
+        padding: 0.35rem;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    select {
+        width: 50%;
+        margin: 0.35rem 0 0.7rem;
+        padding: 0.35rem;
+    }
+
+    input {
+        background-color: rgb(233, 165, 165);
+        width: 50%;
+        padding: 0.35rem;
+    }
+
+    .existing-tickets h2, p {
+        margin-bottom: 0.35rem;
     }
 </style>

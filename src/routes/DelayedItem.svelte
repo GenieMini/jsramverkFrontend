@@ -1,34 +1,11 @@
 <script>
     export let data;
 
-    import TicketView from "./TicketView.svelte";
-
-    function renderTicketView() {
-        let container = document.getElementById("container");
-
-        // Remove existing children from container before recreating them
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
-
-        const element = new TicketView({
-			target: container,
-            props: {data: data}
-		});
-    }
-
-    // Calculate delay in minutes
-    function outputDelay(item) {
-        let advertised = new Date(item.AdvertisedTimeAtLocation);
-        let estimated = new Date(item.EstimatedTimeAtLocation);
-
-        const diff = Math.abs(estimated - advertised);
-
-        return Math.floor(diff / (1000 * 60)) + " minuter";
-    }
+    import { renderTicketView } from "./utils";
+    import { outputDelay } from "./utils";
 </script>
 
-<div on:click={renderTicketView} on:keypress={renderTicketView} role="button" tabindex="0">
+<div on:click={() => renderTicketView(data)} on:keypress={() => renderTicketView(data)} role="button" tabindex="0">
     <div class="train-number">
         {data.OperationalTrainNumber}
     </div>
