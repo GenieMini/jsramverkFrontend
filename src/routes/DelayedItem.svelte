@@ -1,8 +1,7 @@
 <script>
     export let data;
 
-    import { renderTicketView } from "./utils";
-    import { outputDelay } from "./utils";
+    import { renderTicketView, outputDelay } from "./utils";
 </script>
 
 <div on:click={() => renderTicketView(data)} on:keypress={() => renderTicketView(data)} role="button" tabindex="0">

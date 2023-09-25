@@ -1,41 +1,21 @@
 <script>
-    //export let port;
+    // export let port;
 
-    // import { onMount } from 'svelte';
+    import { ROUTES, getData } from './utils';
     import DelayedItem from './DelayedItem.svelte';
-    import { DEV } from 'esm-env';
 
-    const backend_url = DEV
-        ? "http://localhost:1337/"
-        : "https://jsramverk-editor-shou21.azurewebsites.net/";
-
-    let promise = getDelayData();
-
-    async function getDelayData() {
-        const res = await fetch(`${backend_url}delayed`)
-            .then((response) => response.json())
-            .then(function(result) {
-                return result.data;
-            });
-
-        return res;
-    }
-
-    /*
-    onMount(() => {
-	});
-    */
+    const delays = getData(ROUTES.DELAYS);
 </script>
 
 <div class="delayed">
     <h1>Försenade tåg</h1>
 
     <div id="delayed-trains" class="delayed-trains">
-        {#await promise}
+        {#await delays}
 	        <p>Fetching data...</p>
-        {:then datas}
-            {#each datas as item}
-                <DelayedItem data={item}></DelayedItem>
+        {:then delays}
+            {#each delays as delay}
+                <DelayedItem data={delay}></DelayedItem>
             {/each}
         {/await}
     </div>
