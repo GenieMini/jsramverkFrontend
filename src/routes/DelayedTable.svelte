@@ -1,13 +1,18 @@
 <script>
-    export let port;
+    //export let port;
 
     // import { onMount } from 'svelte';
     import DelayedItem from './DelayedItem.svelte';
-    
+    import { DEV } from 'esm-env';
+
+    const backend_url = DEV
+        ? "http://localhost:1337/"
+        : "https://jsramverk-editor-shou21.azurewebsites.net/";
+
     let promise = getDelayData();
 
     async function getDelayData() {
-        const res = await fetch(`http://localhost:${port}/delayed`)
+        const res = await fetch(`${backend_url}delayed`)
             .then((response) => response.json())
             .then(function(result) {
                 return result.data;

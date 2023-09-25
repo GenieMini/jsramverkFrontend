@@ -1,11 +1,16 @@
 <script>
-    export let port;
+    //export let port;
 
     import { io } from "socket.io-client";
     import { onMount, onDestroy } from 'svelte';
     import { browser } from '$app/environment';
+    import { DEV } from 'esm-env';
 
-    const socket = io(`http://localhost:${port}`);
+    const backend_url = DEV
+        ? "http://localhost:1337/"
+        : "https://jsramverk-editor-shou21.azurewebsites.net/";
+
+    const socket = io(backend_url);
     const markers = {};
 
     let mapElement;

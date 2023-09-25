@@ -1,13 +1,18 @@
 <script>
     export let data;
+    //export let port;
 
     import { outputDelay } from "./utils";
     import { renderMainView } from "./utils";
     import { renderTicketView } from "./utils";
-    // import { onMount } from 'svelte';
+    import { DEV } from 'esm-env';
 
     let reasonCodes = getReasonCodes();
     let existingTickets = getExistingTickets();
+
+    const backend_url = DEV
+        ? "http://localhost:1337/"
+        : "https://jsramverk-editor-shou21.azurewebsites.net/";
 
     /*
     onMount(() => {
@@ -17,7 +22,7 @@
     // Get all reason codes from api using /codes route
     async function getReasonCodes() {
         try {
-            const result = await fetch("http://localhost:1337/codes");
+            const result = await fetch(`${backend_url}codes`);
             const res = await result.json();
 
             return res.data;
@@ -29,7 +34,7 @@
     // Get all existing tickets in db from /tickets route
     async function getExistingTickets() {
         try {
-            const result = await fetch("http://localhost:1337/tickets");
+            const result = await fetch(`${backend_url}tickets`);
             const res = await result.json();
 
             return res.data;
@@ -49,7 +54,7 @@
         };
 
         try {
-            await fetch("http://localhost:1337/tickets", {
+            await fetch(`${backend_url}tickets`, {
                 body: JSON.stringify(newTicket),
                 headers: {
                 'content-type': 'application/json'
