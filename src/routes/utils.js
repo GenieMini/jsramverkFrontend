@@ -1,6 +1,20 @@
+import { DEV } from "esm-env";
+import { io } from "socket.io-client";
 import DelayedTable from "./DelayedTable.svelte";
 import LeafletMap from "./LeafletMap.svelte";
 import TicketView from "./TicketView.svelte";
+
+const BACKEND_URL = DEV
+    ? "http://localhost:1337"
+    : "https://jsramverk-editor-shou21.azurewebsites.net";
+
+export const socket = io(BACKEND_URL);
+
+export const ROUTES = {
+    DELAYS: "delayed",
+    CODES: "codes",
+    TICKETS: "tickets"
+};
 
 export function renderMainView() {
     let container = document.getElementById("container");
@@ -34,6 +48,7 @@ export function renderTicketView(data) {
     });
 }
 
+// Calculate delay in minutes
 export function outputDelay(data) {
     let advertised = new Date(data.AdvertisedTimeAtLocation);
     let estimated = new Date(data.EstimatedTimeAtLocation);
@@ -48,4 +63,31 @@ export function outputDelay(data) {
     }
 
     return mins + minDisplay;
+}
+
+// Get data from route
+export async function getData(route) {
+    try {
+        const result = await fetch(`${BACKEND_URL}/${route}`);
+        const res = await result.json();
+
+        return res.data;
+    } catch(e) {
+        console.log(e);
+    }
+}
+
+// Post data to route
+export async function postData(route, data) {
+    try {
+        await fetch(`${BACKEND_URL}/${route}`, {
+            body: JSON.stringify(data),
+            headers: {
+            'content-type': 'application/json'
+            },
+            method: 'POST'
+        });
+    } catch(e) {
+        console.log(e);
+    }
 }

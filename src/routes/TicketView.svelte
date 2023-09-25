@@ -1,47 +1,11 @@
 <script>
     export let data;
-    //export let port;
+    // export let port;
 
-    import { outputDelay } from "./utils";
-    import { renderMainView } from "./utils";
-    import { renderTicketView } from "./utils";
-    import { DEV } from 'esm-env';
+    import { outputDelay, renderMainView, renderTicketView, ROUTES, getData, postData } from "./utils";
 
-    let reasonCodes = getReasonCodes();
-    let existingTickets = getExistingTickets();
-
-    const backend_url = DEV
-        ? "http://localhost:1337/"
-        : "https://jsramverk-editor-shou21.azurewebsites.net/";
-
-    /*
-    onMount(() => {
-	});
-    */
-
-    // Get all reason codes from api using /codes route
-    async function getReasonCodes() {
-        try {
-            const result = await fetch(`${backend_url}codes`);
-            const res = await result.json();
-
-            return res.data;
-        } catch(e) {
-            console.log(e);
-        }
-    }
-
-    // Get all existing tickets in db from /tickets route
-    async function getExistingTickets() {
-        try {
-            const result = await fetch(`${backend_url}tickets`);
-            const res = await result.json();
-
-            return res.data;
-        } catch(e) {
-            console.log(e);
-        }
-    }
+    const reasonCodes = getData(ROUTES.CODES);
+    const existingTickets = getData(ROUTES.TICKETS);
 
     // Create a new ticket and add it to db by posting to /tickets route
     async function createNewTicket() {
@@ -53,19 +17,9 @@
             traindate: data.EstimatedTimeAtLocation.substring(0, 10),
         };
 
-        try {
-            await fetch(`${backend_url}tickets`, {
-                body: JSON.stringify(newTicket),
-                headers: {
-                'content-type': 'application/json'
-                },
-                method: 'POST'
-            });
+        await postData(ROUTES.TICKETS, newTicket);
 
-            renderTicketView(data);
-        } catch(e) {
-            console.log(e);
-        }
+        renderTicketView(data);
     }
 </script>
 
