@@ -12,13 +12,11 @@ export function renderMainView() {
 
     // Append new components to container
     new DelayedTable({
-        target: container,
-        props: {port: 1337}
+        target: container
     });
 
     new LeafletMap({
-        target: container,
-        props: {port: 1337}
+        target: container
     });
 }
 
