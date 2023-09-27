@@ -6,7 +6,7 @@ import TicketView from "./TicketView.svelte";
 
 const BACKEND_URL = DEV
     ? "http://localhost:1337"
-    : "https://jsramverk-editor-shou21.azurewebsites.net";
+    : "http://jsramverk-editor-shou21.azurewebsites.net";
 
 export const socket = io(BACKEND_URL);
 

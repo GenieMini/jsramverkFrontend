@@ -20,6 +20,12 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
 
+            // custom marker
+            var myIcon = L.icon({
+                iconUrl: './marker-icon.png',
+                shadowUrl: './marker-shadow.png',
+            });
+
             // Listen for changes in train positions
             socket.on("message", (data) => {
                 if (markers.hasOwnProperty(data.trainnumber)) {
@@ -27,7 +33,9 @@
 
                     marker.setLatLng(data.position);
                 } else {
-                    let marker = L.marker(data.position).bindPopup(data.trainnumber).addTo(map);
+                    let marker = L.marker(data.position, {icon: myIcon})
+                        .bindPopup(data.trainnumber)
+                        .addTo(map);
 
                     markers[data.trainnumber] = marker
                 }
