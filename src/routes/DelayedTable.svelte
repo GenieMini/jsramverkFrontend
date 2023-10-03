@@ -1,10 +1,11 @@
 <script>
     // export let port;
 
-    import { ROUTES, getData } from './utils';
+    // import { ROUTES, getData } from './utils';
+    import { delays } from './utils';
     import DelayedItem from './DelayedItem.svelte';
 
-    const delays = getData(ROUTES.DELAYS);
+    // const delays = getData(ROUTES.DELAYS);
 </script>
 
 <div class="delayed">

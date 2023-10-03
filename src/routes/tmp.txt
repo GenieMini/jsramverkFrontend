@@ -1,0 +1,61 @@
+# Delays
+{
+    "ActivityId": "1500adde-f75d-c409-08db-b7efc889f1f4",
+    "ActivityType": "Avgang",
+    "AdvertisedTimeAtLocation": "2023-10-03T11:36:00.000+02:00",
+    "AdvertisedTrainIdent": "1042",
+    "Canceled": false,
+    "EstimatedTimeAtLocation": "2023-10-03T12:20:00.000+02:00",
+    "FromLocation": [
+        {
+            "LocationName": "Dk.kh",
+            "Priority": 1,
+            "Order": 0
+        }
+    ],
+    "LocationSignature": "Bån",
+    "OperationalTrainNumber": "13042",
+    "ToLocation": [
+        {
+            "LocationName": "G",
+            "Priority": 1,
+            "Order": 0
+        }
+    ],
+    "TrainOwner": "Ö-TÅG"
+}
+
+# Emit
+{
+    "trainnumber": "8962",
+    "position": [
+        59.505444521137385,
+        13.329257485055813
+    ],
+    "timestamp": "2023-10-03T12:20:18.000+02:00",
+    "bearing": 105,
+    "status": true,
+    "speed": 45
+}
+
+# Position
+{
+  Train: {
+    OperationalTrainNumber: '274',
+    OperationalTrainDepartureDate: '2023-10-03T00:00:00.000+02:00',
+    JourneyPlanNumber: '4558',
+    JourneyPlanDepartureDate: '2023-10-03T00:00:00.000+02:00',
+    AdvertisedTrainNumber: '274'
+  },
+  Position: {
+    SWEREF99TM: 'POINT (560309 6493723)',
+    WGS84: 'POINT (16.037139149907677 58.57973838479207)'
+  },
+  TimeStamp: '2023-10-03T11:48:41.000+02:00',
+  Status: { Active: true },
+  Bearing: 75,
+  Speed: 119,
+  ModifiedTime: '2023-10-03T09:48:42.274Z',
+  Deleted: false
+}
+

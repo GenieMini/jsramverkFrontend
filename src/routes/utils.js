@@ -16,6 +16,9 @@ export const ROUTES = {
     TICKETS: "tickets"
 };
 
+export const delays = await getData(ROUTES.DELAYS);
+console.log(delays.length + " delayed trains.");
+
 export function renderMainView() {
     let container = document.getElementById("container");
 
