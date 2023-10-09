@@ -1,9 +1,9 @@
-<script>    
+<script>
+    export let delays;
+
     import { onMount, onDestroy } from 'svelte';
     import { browser } from '$app/environment';
-    import { socket, delays } from './utils';
-
-    const markers = {};
+    import { socket } from './utils';
 
     let mapElement;
     let map;
@@ -29,6 +29,26 @@
             // Listen for changes in train positions
             socket.on("message", (data) => {
 
+                const foundDelay = $delays.find(delay => delay.OperationalTrainNumber === data.trainnumber);
+                
+                if (foundDelay) {
+                    if (foundDelay.hasOwnProperty("marker")) {
+                        foundDelay.marker.setLatLng(data.position);
+                    } else {
+                        const marker = L.marker(data.position, {icon: myIcon})
+                                .bindPopup(data.trainnumber)
+                                .addTo(map);
+
+                        foundDelay.marker = marker;
+
+                        // console.log(foundDelay);
+                    }
+
+                    // updateDelays(delays);
+                    $delays = $delays;
+                }
+
+                /*
                 // Do if emitted train number is in delayed array
                 if (delays.find(delay => delay.OperationalTrainNumber === data.trainnumber)) {
 
@@ -46,8 +66,7 @@
 
                     console.log(Object.keys(markers).length + " train markers.");
                 }
-
-
+                */
         });
         }
     });

@@ -17,6 +17,10 @@
     <div class="delay">
         {outputDelay(data)}
     </div>
+
+    {#if data.marker}
+        <p>{data.marker._latlng}a</p>
+    {/if}
 </div>
 
 <style>

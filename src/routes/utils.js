@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import DelayedTable from "./DelayedTable.svelte";
 import LeafletMap from "./LeafletMap.svelte";
 import TicketView from "./TicketView.svelte";
+// import { delayz } from '$lib/stores/DelaysStore.js'
 
 const BACKEND_URL = DEV
     ? "http://localhost:1337"
@@ -16,8 +17,10 @@ export const ROUTES = {
     TICKETS: "tickets"
 };
 
-export const delays = await getData(ROUTES.DELAYS);
-console.log(delays.length + " delayed trains.");
+// export let delays = delayz;
+// export let delays = await getData(ROUTES.DELAYS);
+// console.log(delayz.length + " delayed trains.");
+// console.log(delayz);
 
 export function renderMainView() {
     let container = document.getElementById("container");
@@ -28,13 +31,18 @@ export function renderMainView() {
     }
 
     // Append new components to container
+
     new DelayedTable({
-        target: container
+        target: container,
+        // props: {delays: delays}
     });
 
+    /*
     new LeafletMap({
-        target: container
+        target: container,
+        props: {delays: delays}
     });
+    */
 }
 
 export function renderTicketView(data) {

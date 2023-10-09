@@ -1,9 +1,12 @@
 <script>
-    // export let port;
+    export let delays;
+    // console.log(delays);
 
     // import { ROUTES, getData } from './utils';
-    import { delays } from './utils';
+    // import { delays } from './utils';
     import DelayedItem from './DelayedItem.svelte';
+    // import { delayz, user, delayz2 } from '$lib/stores/DelaysStore.js'
+    
 
     // const delays = getData(ROUTES.DELAYS);
 </script>
@@ -12,13 +15,23 @@
     <h1>Försenade tåg</h1>
 
     <div id="delayed-trains" class="delayed-trains">
+
+        {#each $delays as delay}
+	        <DelayedItem bind:data={delay}/>
+        {/each}
+
+
+
+        <!--
         {#await delays}
-	        <p>Fetching data...</p>
-        {:then delays}
-            {#each delays as delay}
-                <DelayedItem data={delay}></DelayedItem>
-            {/each}
-        {/await}
+        <p>Fetching data...</p>
+    {:then delays}
+        {#each delays as delay}
+            <DelayedItem bind:data={delay}></DelayedItem>
+        {/each}
+    {/await}
+    -->
+
     </div>
 </div>
 
