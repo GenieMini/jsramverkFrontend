@@ -3,7 +3,6 @@ import { io } from "socket.io-client";
 import DelayedTable from "./DelayedTable.svelte";
 import LeafletMap from "./LeafletMap.svelte";
 import TicketView from "./TicketView.svelte";
-// import { delayz } from '$lib/stores/DelaysStore.js'
 
 const BACKEND_URL = DEV
     ? "http://localhost:1337"
@@ -17,41 +16,39 @@ export const ROUTES = {
     TICKETS: "tickets"
 };
 
-// export let delays = delayz;
-// export let delays = await getData(ROUTES.DELAYS);
-// console.log(delayz.length + " delayed trains.");
-// console.log(delayz);
+let delays;
 
-export function renderMainView() {
-    let container = document.getElementById("container");
+export function setDelays(_delays) {
+    delays = _delays;
+}
+
+function clearContainer() {
+    const container = document.getElementById("container");
 
     // Remove existing children from container
     while (container.firstChild) {
         container.removeChild(container.firstChild);
     }
 
-    // Append new components to container
+    return container;
+}
+
+export async function renderMainView() {
+    const container = clearContainer();
 
     new DelayedTable({
         target: container,
-        // props: {delays: delays}
+        props: {delays: delays}
     });
 
-    /*
     new LeafletMap({
         target: container,
         props: {delays: delays}
     });
-    */
 }
 
 export function renderTicketView(data) {
-    let container = document.getElementById("container");
-
-    // Remove existing children from container before recreating them
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
-    }
+    const container = clearContainer();
 
     new TicketView({
         target: container,
