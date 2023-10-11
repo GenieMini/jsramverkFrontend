@@ -1,23 +1,16 @@
 <script>
-    // export let port;
+    export let delays;
 
-    import { ROUTES, getData } from './utils';
     import DelayedItem from './DelayedItem.svelte';
-
-    const delays = getData(ROUTES.DELAYS);
 </script>
 
 <div class="delayed">
     <h1>Försenade tåg</h1>
 
     <div id="delayed-trains" class="delayed-trains">
-        {#await delays}
-	        <p>Fetching data...</p>
-        {:then delays}
-            {#each delays as delay}
-                <DelayedItem data={delay}></DelayedItem>
-            {/each}
-        {/await}
+        {#each $delays as delay}
+	        <DelayedItem data={delay}/>
+        {/each}
     </div>
 </div>
 

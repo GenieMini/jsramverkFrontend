@@ -1,7 +1,8 @@
 <script>
     export let data;
 
-    import { renderTicketView, outputDelay } from "./utils";
+    import { renderTicketView } from "./utils";
+    import { outputDelay } from "./utils";
 </script>
 
 <div on:click={() => renderTicketView(data)} on:keypress={() => renderTicketView(data)} role="button" tabindex="0">
@@ -17,6 +18,10 @@
     <div class="delay">
         {outputDelay(data)}
     </div>
+
+    {#if data.marker}
+        <p>{data.marker._latlng}a</p>
+    {/if}
 </div>
 
 <style>
