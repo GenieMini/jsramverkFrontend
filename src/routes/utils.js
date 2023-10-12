@@ -85,15 +85,14 @@ export async function getData(route) {
     }
 }
 
-// Post data to route
-export async function postData(route, data) {
+export async function sendRequest(route, data, _method) {
     try {
         await fetch(`${BACKEND_URL}/${route}`, {
             body: JSON.stringify(data),
             headers: {
             'content-type': 'application/json'
             },
-            method: 'POST'
+            method: _method
         });
     } catch(e) {
         console.log(e);
