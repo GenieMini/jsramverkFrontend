@@ -23,20 +23,6 @@
         background-color: #fff;
     }
 
-    .delayed-trains {
-        display: flex;
-        flex-direction: column;
-    }
-
-    div :global(.delayed-trains > div) {
-        display: flex;
-        flex-direction: row;
-        border-top: 1px solid #ccc;
-        padding: 0.2rem 0.8rem;
-        align-items: center;
-        cursor: pointer;
-    }
-
     div :global(.delayed-trains > div:nth-of-type(2n)) {
         background-color: #eee;
     }
