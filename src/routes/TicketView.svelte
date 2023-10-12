@@ -1,12 +1,7 @@
 <script>
     export let data;
 
-    // import renderMainView from "./+page.svelte";
-    import { outputDelay, ROUTES, getData, postData, renderMainView } from "./utils";
-    // import { delays } from '$lib/stores/DelayStore.js'
-    // import { delays } from '$lib/stores/DelayStore.js'
-    // import { delays } from '$lib/stores/DelayStore.js';
-    // import { getDelays } from "$lib/stores/DelayStore";
+    import { outputDelay, ROUTES, getData, postData, renderMainView, renderTicketView } from "./utils";
 
     const reasonCodes = getData(ROUTES.CODES);
     const existingTickets = getData(ROUTES.TICKETS);
@@ -30,7 +25,6 @@
 <div class="ticket-container">
     <!-- Back Button -->
     <button on:click={renderMainView}>&larr; Tillbaka</button>
-    <!--<button on:click={() => renderMainView(test)}>&larr; Tillbaka</button>-->
 
     <h1>Nytt ärende</h1>
 

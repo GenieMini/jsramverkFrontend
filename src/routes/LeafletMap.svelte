@@ -4,10 +4,73 @@
     import { onMount, onDestroy } from 'svelte';
     import { browser } from '$app/environment';
     import { socket } from './utils';
-    import { map } from '$lib/stores/DelayStore';
+    import { map, followCount } from '$lib/stores/DelayStore';
 
     let mapElement;
-    // let map;
+    let layerGroup;
+    let myIcon;
+
+    $: $followCount, drawExistingMarkers();
+
+    /**
+     * Look for markers in delay objects.
+     * Add all found markers to map.
+     * If followCount > 0, only add followed trains.
+     * Else add all trains with marker property.
+     */
+    function drawExistingMarkers() {
+        if (!layerGroup) {
+            return;
+        }
+
+        layerGroup.clearLayers();
+
+        $delays.forEach((delay) => {
+                if ($followCount > 0) {
+                    if (delay.follow) {
+                        const marker = L.marker(delay.marker._latlng, {icon: myIcon})
+                        .bindPopup(delay.OperationalTrainNumber)
+                        .addTo(layerGroup);
+
+                        delay.marker = marker;
+                    }
+                } else if (delay.marker) {
+                    const marker = L.marker(delay.marker._latlng, {icon: myIcon})
+                        .bindPopup(delay.OperationalTrainNumber)
+                        .addTo(layerGroup);
+                    
+                    delay.marker = marker;
+                }
+        });
+    }
+
+    /**
+     * Called when a new message is received from socket.
+     * Message includes data which is a train object with location.
+     * Match the train object with delay objects.
+     * Update marker if it exists or create new marker if it doesn't.
+     * @param data
+     */
+    function updateOrCreateTrainMarker(data) {
+        const foundDelay = $delays.find(delay => delay.OperationalTrainNumber === data.trainnumber);
+
+        if (foundDelay) {
+            if (foundDelay.marker) {
+                foundDelay.marker.setLatLng(data.position);
+            } else {
+                const marker = L.marker(data.position, {icon: myIcon})
+                        .bindPopup(data.trainnumber);
+
+                foundDelay.marker = marker;
+
+                if ($followCount === 0 || foundDelay.follow) {
+                    marker.addTo(layerGroup);
+                }
+            }
+            
+            $delays = $delays;
+        }
+    }
 
     onMount(async () => {
         if(browser) {
@@ -23,68 +86,25 @@
             }).addTo($map);
 
             // custom marker
-            var myIcon = L.icon({
+            myIcon = L.icon({
                 iconUrl: './marker-icon.png',
                 shadowUrl: './marker-shadow.png',
             });
 
-            // Re-add existing markers after using back button in TicketView
-            $delays.forEach((delay) => {
-                if (delay.hasOwnProperty("marker")) {
-                    const marker = L.marker(delay.marker._latlng, {icon: myIcon})
-                        .bindPopup(delay.OperationalTrainNumber)
-                        .addTo($map);
+            layerGroup = L.layerGroup().addTo($map);
 
-                    delay.marker = marker;
-                }
-            });
+            drawExistingMarkers();
 
             // Listen for changes in train positions
             socket.on("message", (data) => {
-
-                const foundDelay = $delays.find(delay => delay.OperationalTrainNumber === data.trainnumber);
-                
-                // Add or update marker property of delay object if delay found
-                if (foundDelay) {
-                    if (foundDelay.hasOwnProperty("marker")) {
-                        foundDelay.marker.setLatLng(data.position);
-                    } else {
-                        const marker = L.marker(data.position, {icon: myIcon})
-                                .bindPopup(data.trainnumber)
-                                .addTo($map);
-
-                        foundDelay.marker = marker;
-                    }
-
-                    $delays = $delays;
-                }
-
-                /*
-                // Do if emitted train number is in delayed array
-                if (delays.find(delay => delay.OperationalTrainNumber === data.trainnumber)) {
-
-                    if (markers.hasOwnProperty(data.trainnumber)) {
-                        let marker = markers[data.trainnumber]
-
-                        marker.setLatLng(data.position);
-                    } else {
-                        let marker = L.marker(data.position, {icon: myIcon})
-                            .bindPopup(data.trainnumber)
-                            .addTo(map);
-
-                        markers[data.trainnumber] = marker
-                    }
-
-                    console.log(Object.keys(markers).length + " train markers.");
-                }
-                */
+                updateOrCreateTrainMarker(data);
         });
         }
     });
 
     onDestroy(async () => {
-        if(map) {
-            map.remove();
+        if($map) {
+            $map.remove();
         }
     });
 </script>

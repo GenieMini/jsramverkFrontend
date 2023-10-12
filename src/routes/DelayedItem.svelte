@@ -1,11 +1,29 @@
 <script>
     export let data;
 
-    import { renderTicketView } from "./utils";
-    import { outputDelay } from "./utils";
+    import { followCount } from "$lib/stores/DelayStore";
+    import { outputDelay, renderTicketView } from "./utils";
+
+    import Fa from 'svelte-fa'
+    import { faTicket, faArrowsToEye } from '@fortawesome/free-solid-svg-icons'
+
+    function toggleFollow() {
+        if (data.hasOwnProperty("follow")) {
+            if (data.follow === true) {
+                data.follow = false;
+                $followCount--;
+            } else {
+                data.follow = true;
+                $followCount++;
+            }
+        } else {
+            data.follow = true;
+            $followCount++;
+        }
+    }
 </script>
 
-<div on:click={() => renderTicketView(data)} on:keypress={() => renderTicketView(data)} role="button" tabindex="0">
+<div class="train-container">
     <div class="train-number">
         {data.OperationalTrainNumber}
     </div>
@@ -19,12 +37,41 @@
         {outputDelay(data)}
     </div>
 
-    {#if data.marker}
-        <p>{data.marker._latlng}a</p>
-    {/if}
+    <div class="buttons">
+        <button class="button" on:click={() => renderTicketView(data)}>
+            <Fa icon={faTicket} size="1.5x" color="red"/>
+        </button>
+        
+        {#if data.marker}
+            <button class="button" on:click={toggleFollow}>
+                {#if data.follow}
+                    <Fa icon={faArrowsToEye} size="1.5x" color="green"/>
+                {:else}
+                    <Fa icon={faArrowsToEye} size="1.5x" color="blue"/>
+                {/if}
+            </button>
+        {:else}
+            <button class="button" disabled>
+                <Fa icon={faArrowsToEye} size="1.5x"/>
+            </button>
+        {/if}
+    </div>
 </div>
 
 <style>
+    .train-container {
+        border-top: 1px solid #ccc;
+        padding: 0.25rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
+    .train-container > div {
+        flex: 2;
+    }
+
     .train-number {
         font-size: 2rem;
         font-weight: bold;
@@ -33,5 +80,13 @@
 
     .current-station {
         width: 30%;
+    }
+
+    .buttons {
+        flex: 1;
+    }
+
+    .button {
+        padding: 0.25rem;
     }
 </style>
