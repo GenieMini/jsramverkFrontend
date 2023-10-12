@@ -1,7 +1,7 @@
 <script>
     export let data;
 
-    import { outputDelay, ROUTES, getData, postData, renderMainView, renderTicketView } from "./utils";
+    import { outputDelay, renderMainView, renderTicketView, ROUTES, getData, sendRequest } from "./utils";
 
     const reasonCodes = getData(ROUTES.CODES);
     const existingTickets = getData(ROUTES.TICKETS);
@@ -16,9 +16,59 @@
             traindate: data.EstimatedTimeAtLocation.substring(0, 10),
         };
 
-        await postData(ROUTES.TICKETS, newTicket);
+        await sendRequest(ROUTES.TICKETS, newTicket, 'POST');
 
         renderTicketView(data);
+    }
+
+    // Update a ticket
+    async function updateTicket(id, _code) {
+
+        await sendRequest(ROUTES.TICKETS, {_id: id, code: _code}, 'PUT');
+
+        renderTicketView(data);
+    }
+
+    // Delete a ticket
+    async function deleteTicket(id) {
+
+        await sendRequest(ROUTES.TICKETS, {_id: id}, 'DELETE');
+
+        renderTicketView(data);
+    }
+
+    // Open update tab
+    async function openUpdateTicket(id) {
+
+        let elem = document.getElementById(id);
+        const oldCode = elem.innerText;
+        elem.innerText = '';
+
+        let selector = document.createElement('select');
+        selector.style.border = "none";
+        selector.style.fontSize = "1em";
+        selector.style.outline = "none";
+        selector.style.background = "none";
+
+        const codes = await reasonCodes
+        let options = "";
+        codes.forEach((reasonCode) => {
+            if (reasonCode.Code == oldCode) {
+                options += `<option value="${reasonCode.Code}" selected>${reasonCode.Code}</option>`;
+            } else {
+                options += `<option value="${reasonCode.Code}">${reasonCode.Code}</option>`;
+            }
+            
+        })
+        selector.innerHTML = options;
+
+        // Listen for change
+        selector.addEventListener('change', (event) => {
+            console.log(event.target.value);
+            updateTicket(id, event.target.value)
+        })
+
+        elem.appendChild(selector);
     }
 </script>
 
@@ -70,14 +120,27 @@
         {#await existingTickets}
             <p>Fetching data...</p>
         {:then existingTickets}
+        <table>
+            <tr>
+                <th>id</th>
+                <th>kod</th>
+                <th>tågnummer</th>
+                <th>koddatum</th>
+                <th>update</th>
+            </tr>
             {#each existingTickets as existingTicket}
-                <p> 
-                    {existingTicket._id} - 
-                    {existingTicket.code} - 
-                    {existingTicket.trainnumber} - 
-                    {existingTicket.traindate}
-                </p>
+            <tr>
+                <td>{existingTicket._id}</td>
+                <td id="{existingTicket._id}">{existingTicket.code}</td>
+                <td>{existingTicket.trainnumber}</td>
+                <td>{existingTicket.traindate}</td>
+                <td>
+                    <button on:click={() => openUpdateTicket(existingTicket._id)}>change</button>
+                    <button on:click={() => deleteTicket(existingTicket._id)}>del</button>
+                </td>
+            </tr>
             {/each}
+        </table>
         {/await}
     </div>
 </div>
@@ -107,12 +170,33 @@
     }
 
     input {
-        background-color: rgb(233, 165, 165);
+        background-color: rgb(215 232 247);
         width: 50%;
-        padding: 0.35rem;
+        padding: 5px;
+        border-radius: 5px;
+        font-size: 1em;
+        border: 2px solid lightslategray;
+    }
+
+    input:hover {
+        background-color: rgb(198, 217, 235);
     }
 
     .existing-tickets h2, p {
         margin-bottom: 0.35rem;
+    }
+
+    table {
+        border-spacing: 0;
+    }
+
+    td, th {
+        padding: 5px;
+        margin: 0;
+        border: solid 1px rgb(218, 218, 218);
+    }
+
+    th {
+        background-color: rgb(247, 247, 247);
     }
 </style>
