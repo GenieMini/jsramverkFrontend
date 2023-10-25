@@ -16,6 +16,8 @@ export const ROUTES = {
     TICKETS: "tickets"
 };
 
+export let openedByClient = [];
+
 let delays;
 
 export function setDelays(_delays) {
