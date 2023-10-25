@@ -20,6 +20,8 @@ export const ROUTES = {
     LOGIN: "auth/login",
 };
 
+export let openedByClient = [];
+
 let delays;
 
 export function setDelays(_delays) {

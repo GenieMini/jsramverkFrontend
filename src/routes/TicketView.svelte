@@ -1,11 +1,25 @@
 <script>
     export let data;
 
-    import { outputDelay, renderMainView, renderTicketView, ROUTES, getData, sendRequest } from "./utils";
     import { TOKEN } from '$lib/stores/DelayStore';
+    import { onMount, onDestroy } from 'svelte';
+    import { outputDelay, renderMainView, renderTicketView, ROUTES, getData, sendRequest, socket } from "./utils";
 
     const reasonCodes = getData(ROUTES.CODES, $TOKEN);
     const existingTickets = getData(ROUTES.TICKETS, $TOKEN);
+
+    let editedTickets = [];
+    const editedByClient = [];
+
+    onMount(() => {
+        // Receive updates
+        socket.on('ticket edit', function (_editedTickets) {
+            editedTickets = _editedTickets;
+        });
+
+        // Emit empty string to init editedTickets
+        socket.emit('ticket edit', "");
+    });
 
     // Create a new ticket and add it to db by posting to /tickets route
     async function createNewTicket() {
@@ -27,9 +41,11 @@
 
         await sendRequest(ROUTES.TICKETS, {_id: id, code: _code}, 'PUT', $TOKEN);
 
+        removeClientEdit(id);
+
         renderTicketView(data);
     }
-
+  
     // Delete a ticket
     async function deleteTicket(id) {
 
@@ -40,6 +56,7 @@
 
     // Open update tab
     async function openUpdateTicket(id) {
+        addClientEdit(id);
 
         let elem = document.getElementById(id);
         const oldCode = elem.innerText;
@@ -65,17 +82,51 @@
 
         // Listen for change
         selector.addEventListener('change', (event) => {
-            console.log(event.target.value);
             updateTicket(id, event.target.value)
         })
 
         elem.appendChild(selector);
     }
+
+    // Add an edit initiated by client
+    function addClientEdit(ticketId) {
+        editedTickets.push(ticketId);
+        editedByClient.push(ticketId);
+
+        socket.emit('ticket edit', editedTickets);
+    }
+
+    // Remove an edit initiated by client
+    function removeClientEdit(ticketId) {
+        editedTickets.splice(editedTickets.indexOf(ticketId), 1);
+        editedByClient.splice(editedByClient.indexOf(ticketId), 1);
+
+        socket.emit('ticket edit', editedTickets);
+    }
+
+    // Remove all edits initiated by client
+    function removeClientEdits() {
+        editedByClient.forEach((ticketId) => {
+            editedTickets.splice(editedTickets.indexOf(ticketId), 1);
+        });
+
+        socket.emit('ticket edit', editedTickets);
+    }
+
+    function goBack() {
+        removeClientEdits();
+
+        renderMainView();
+    }
+
+    onDestroy(() => {
+        removeClientEdits();
+    });
 </script>
 
 <div class="ticket-container">
     <!-- Back Button -->
-    <button on:click={renderMainView}>&larr; Tillbaka</button>
+    <button on:click={goBack}>&larr; Tillbaka</button>
 
     <h1>Nytt ärende</h1>
 
@@ -136,8 +187,13 @@
                 <td>{existingTicket.trainnumber}</td>
                 <td>{existingTicket.traindate}</td>
                 <td>
-                    <button on:click={() => openUpdateTicket(existingTicket._id)}>change</button>
-                    <button on:click={() => deleteTicket(existingTicket._id)}>del</button>
+                    {#if !editedTickets.includes(existingTicket._id)}
+                        <button on:click={() => openUpdateTicket(existingTicket._id)}>change</button>
+                        <button on:click={() => deleteTicket(existingTicket._id)}>del</button>
+                    {:else}
+                        <button disabled>change</button>
+                        <button disabled>del</button>
+                    {/if}
                 </td>
             </tr>
             {/each}

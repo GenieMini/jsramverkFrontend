@@ -100,7 +100,7 @@
             // Listen for changes in train positions
             socket.on("message", (data) => {
                 updateOrCreateTrainMarker(data);
-        });
+            });
         }
     });
 
