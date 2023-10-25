@@ -1,11 +1,12 @@
 <script>
     export let data;
+    export let ticketHelper;
 
     import { followCount } from "$lib/stores/DelayStore";
     import { outputDelay, renderTicketView } from "./utils";
 
-    import Fa from 'svelte-fa'
-    import { faTicket, faArrowsToEye } from '@fortawesome/free-solid-svg-icons'
+    import Fa from 'svelte-fa';
+    import { faTicket, faArrowsToEye } from '@fortawesome/free-solid-svg-icons';
 
     function toggleFollow() {
         if (data.hasOwnProperty("follow")) {
@@ -20,6 +21,12 @@
             data.follow = true;
             $followCount++;
         }
+    }
+
+    function openTicket(data) {
+        ticketHelper.addClientOpen(data.OperationalTrainNumber);
+        
+        renderTicketView(data);
     }
 </script>
 
@@ -38,10 +45,17 @@
     </div>
 
     <div class="buttons">
-        <button class="button" on:click={() => renderTicketView(data)}>
-            <Fa icon={faTicket} size="1.5x" color="red"/>
-        </button>
-        
+        <!-- Disable ticket button if ticket is already open -->
+        {#if !ticketHelper.openedTickets.includes(data.OperationalTrainNumber)}
+            <button class="button" on:click={() => openTicket(data)}>
+                <Fa icon={faTicket} size="1.5x" color="red"/>
+            </button>
+        {:else}
+            <button class="button" disabled>
+                <Fa icon={faTicket} size="1.5x"/>
+            </button>
+        {/if}
+
         {#if data.marker}
             <button class="button" on:click={toggleFollow}>
                 {#if data.follow}
