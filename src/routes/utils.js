@@ -3,6 +3,8 @@ import { io } from "socket.io-client";
 import DelayedTable from "./DelayedTable.svelte";
 import LeafletMap from "./LeafletMap.svelte";
 import TicketView from "./TicketView.svelte";
+import LoginPage from "./LoginPage.svelte";
+import RegisterPage from "./CreateAccount.svelte";
 
 const BACKEND_URL = DEV
     ? "http://localhost:1337"
@@ -13,7 +15,9 @@ export const socket = io(BACKEND_URL);
 export const ROUTES = {
     DELAYS: "delayed",
     CODES: "codes",
-    TICKETS: "tickets"
+    TICKETS: "tickets",
+    REGISTER: "auth/register",
+    LOGIN: "auth/login",
 };
 
 export let openedByClient = [];
@@ -58,6 +62,22 @@ export function renderTicketView(data) {
     });
 }
 
+export function renderLoginView() {
+    const container = clearContainer();
+
+    new LoginPage({
+        target: container
+    });
+}
+
+export function renderRegisterView() {
+    const container = clearContainer();
+
+    new RegisterPage({
+        target: container
+    });
+}
+
 // Calculate delay in minutes
 export function outputDelay(data) {
     let advertised = new Date(data.AdvertisedTimeAtLocation);
@@ -76,9 +96,13 @@ export function outputDelay(data) {
 }
 
 // Get data from route
-export async function getData(route) {
+export async function getData(route, token = '') {
     try {
-        const result = await fetch(`${BACKEND_URL}/${route}`);
+        const result = await fetch(`${BACKEND_URL}/${route}`, {
+            headers: {
+                'x-access-token': token
+            }
+        });
         const res = await result.json();
 
         return res.data;
@@ -87,16 +111,18 @@ export async function getData(route) {
     }
 }
 
-export async function sendRequest(route, data, _method) {
+export async function sendRequest(route, data, _method, token = '') {
     try {
-        await fetch(`${BACKEND_URL}/${route}`, {
+        return await fetch(`${BACKEND_URL}/${route}`, {
             body: JSON.stringify(data),
             headers: {
-            'content-type': 'application/json'
+                'content-type': 'application/json',
+                'x-access-token': token
             },
             method: _method
         });
     } catch(e) {
         console.log(e);
+        return null
     }
 }

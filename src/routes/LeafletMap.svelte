@@ -75,12 +75,12 @@
     onMount(async () => {
         if(browser) {
             // Set up map
-            const leaflet = await import('leaflet');
+            const L = await import('leaflet');
 
-            $map = leaflet.map(mapElement).setView([62.173276, 14.942265], 5);
+            $map = L.map(mapElement).setView([62.173276, 14.942265], 5);
 
             // Add tile layer to map
-            leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo($map);
@@ -89,6 +89,8 @@
             myIcon = L.icon({
                 iconUrl: './marker-icon.png',
                 shadowUrl: './marker-shadow.png',
+                iconAnchor:   [12, 40],
+                popupAnchor:  [0, -40]
             });
 
             layerGroup = L.layerGroup().addTo($map);

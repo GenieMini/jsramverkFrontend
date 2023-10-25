@@ -1,11 +1,12 @@
 <script>
     export let data;
 
+    import { TOKEN } from '$lib/stores/DelayStore';
     import { onMount, onDestroy } from 'svelte';
     import { outputDelay, renderMainView, renderTicketView, ROUTES, getData, sendRequest, socket } from "./utils";
 
-    const reasonCodes = getData(ROUTES.CODES);
-    const existingTickets = getData(ROUTES.TICKETS);
+    const reasonCodes = getData(ROUTES.CODES, $TOKEN);
+    const existingTickets = getData(ROUTES.TICKETS, $TOKEN);
 
     let editedTickets = [];
     const editedByClient = [];
@@ -30,7 +31,7 @@
             traindate: data.EstimatedTimeAtLocation.substring(0, 10),
         };
 
-        await sendRequest(ROUTES.TICKETS, newTicket, 'POST');
+        await sendRequest(ROUTES.TICKETS, newTicket, 'POST', $TOKEN);
 
         renderTicketView(data);
     }
@@ -38,9 +39,17 @@
     // Update a ticket
     async function updateTicket(id, _code) {
 
-        await sendRequest(ROUTES.TICKETS, {_id: id, code: _code}, 'PUT');
+        await sendRequest(ROUTES.TICKETS, {_id: id, code: _code}, 'PUT', $TOKEN);
 
         removeClientEdit(id);
+
+        renderTicketView(data);
+    }
+  
+    // Delete a ticket
+    async function deleteTicket(id) {
+
+        await sendRequest(ROUTES.TICKETS, {_id: id}, 'DELETE', $TOKEN);
 
         renderTicketView(data);
     }
@@ -77,14 +86,6 @@
         })
 
         elem.appendChild(selector);
-    }
-
-    // Delete a ticket
-    async function deleteTicket(id) {
-
-    await sendRequest(ROUTES.TICKETS, {_id: id}, 'DELETE');
-
-    renderTicketView(data);
     }
 
     // Add an edit initiated by client
