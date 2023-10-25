@@ -2,9 +2,10 @@
     export let data;
 
     import { outputDelay, renderMainView, renderTicketView, ROUTES, getData, sendRequest } from "./utils";
+    import { TOKEN } from '$lib/stores/DelayStore';
 
-    const reasonCodes = getData(ROUTES.CODES);
-    const existingTickets = getData(ROUTES.TICKETS);
+    const reasonCodes = getData(ROUTES.CODES, $TOKEN);
+    const existingTickets = getData(ROUTES.TICKETS, $TOKEN);
 
     // Create a new ticket and add it to db by posting to /tickets route
     async function createNewTicket() {
@@ -16,7 +17,7 @@
             traindate: data.EstimatedTimeAtLocation.substring(0, 10),
         };
 
-        await sendRequest(ROUTES.TICKETS, newTicket, 'POST');
+        await sendRequest(ROUTES.TICKETS, newTicket, 'POST', $TOKEN);
 
         renderTicketView(data);
     }
@@ -24,7 +25,7 @@
     // Update a ticket
     async function updateTicket(id, _code) {
 
-        await sendRequest(ROUTES.TICKETS, {_id: id, code: _code}, 'PUT');
+        await sendRequest(ROUTES.TICKETS, {_id: id, code: _code}, 'PUT', $TOKEN);
 
         renderTicketView(data);
     }
@@ -32,7 +33,7 @@
     // Delete a ticket
     async function deleteTicket(id) {
 
-        await sendRequest(ROUTES.TICKETS, {_id: id}, 'DELETE');
+        await sendRequest(ROUTES.TICKETS, {_id: id}, 'DELETE', $TOKEN);
 
         renderTicketView(data);
     }

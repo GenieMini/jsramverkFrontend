@@ -6,3 +6,5 @@ export const delays = writable(await getData(ROUTES.DELAYS));
 export const map = writable();
 
 export const followCount = writable(0);
+
+export const TOKEN = writable();
