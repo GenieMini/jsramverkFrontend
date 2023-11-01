@@ -5,6 +5,7 @@ import LeafletMap from "./LeafletMap.svelte";
 import TicketView from "./TicketView.svelte";
 import LoginPage from "./LoginPage.svelte";
 import RegisterPage from "./CreateAccount.svelte";
+import { delays } from "$lib/stores/DelayStore";
 
 const BACKEND_URL = DEV
     ? "http://localhost:1337"
@@ -21,12 +22,6 @@ export const ROUTES = {
 };
 
 export let openedByClient = [];
-
-let delays;
-
-export function setDelays(_delays) {
-    delays = _delays;
-}
 
 function clearContainer() {
     const container = document.getElementById("container");
@@ -96,11 +91,11 @@ export function outputDelay(data) {
 }
 
 // Get data from route
-export async function getData(route, token = '') {
+export async function getData(route, _token = '') {
     try {
         const result = await fetch(`${BACKEND_URL}/${route}`, {
             headers: {
-                'x-access-token': token
+                'x-access-token': _token
             }
         });
         const res = await result.json();
@@ -111,13 +106,13 @@ export async function getData(route, token = '') {
     }
 }
 
-export async function sendRequest(route, data, _method, token = '') {
+export async function sendRequest(route, data, _method, _token = '') {
     try {
         return await fetch(`${BACKEND_URL}/${route}`, {
             body: JSON.stringify(data),
             headers: {
                 'content-type': 'application/json',
-                'x-access-token': token
+                'x-access-token': _token
             },
             method: _method
         });

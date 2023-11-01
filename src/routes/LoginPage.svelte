@@ -1,6 +1,6 @@
 <script>
-    import { renderMainView, renderRegisterView, sendRequest, ROUTES } from "./utils";
-    import { TOKEN } from '$lib/stores/DelayStore';
+    import { renderMainView, renderRegisterView, sendRequest, ROUTES, getData } from "./utils";
+    import { delays, token } from '$lib/stores/DelayStore';
 
     function removeInvalid() {
         let x = document.forms["myForm"]["email"];
@@ -35,8 +35,9 @@
 
             let res = await sendRequest(ROUTES.LOGIN, user, 'POST');
             if (res.ok) {
-                let data = await res.json()
-                $TOKEN = data.data.token
+                let data = await res.json();
+                $token = data.data.token;
+                $delays = await getData(ROUTES.DELAYS, $token);
                 renderMainView();
             }
         }

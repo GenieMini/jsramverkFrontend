@@ -1,12 +1,12 @@
 <script>
     export let data;
 
-    import { TOKEN } from '$lib/stores/DelayStore';
+    import { token } from '$lib/stores/DelayStore';
     import { onMount, onDestroy } from 'svelte';
     import { outputDelay, renderMainView, renderTicketView, ROUTES, getData, sendRequest, socket } from "./utils";
 
-    const reasonCodes = getData(ROUTES.CODES, $TOKEN);
-    const existingTickets = getData(ROUTES.TICKETS, $TOKEN);
+    const reasonCodes = getData(ROUTES.CODES, $token);
+    const existingTickets = getData(ROUTES.TICKETS, $token);
 
     let editedTickets = [];
     const editedByClient = [];
@@ -31,7 +31,7 @@
             traindate: data.EstimatedTimeAtLocation.substring(0, 10),
         };
 
-        await sendRequest(ROUTES.TICKETS, newTicket, 'POST', $TOKEN);
+        await sendRequest(ROUTES.TICKETS, newTicket, 'POST', $token);
 
         renderTicketView(data);
     }
@@ -39,7 +39,7 @@
     // Update a ticket
     async function updateTicket(id, _code) {
 
-        await sendRequest(ROUTES.TICKETS, {_id: id, code: _code}, 'PUT', $TOKEN);
+        await sendRequest(ROUTES.TICKETS, {_id: id, code: _code}, 'PUT', $token);
 
         removeClientEdit(id);
 
@@ -49,7 +49,7 @@
     // Delete a ticket
     async function deleteTicket(id) {
 
-        await sendRequest(ROUTES.TICKETS, {_id: id}, 'DELETE', $TOKEN);
+        await sendRequest(ROUTES.TICKETS, {_id: id}, 'DELETE', $token);
 
         renderTicketView(data);
     }

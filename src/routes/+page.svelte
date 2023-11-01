@@ -1,13 +1,10 @@
 <script>
-    import { delays } from '$lib/stores/DelayStore.js';
+    
     import { onMount } from 'svelte';
-    //import { setDelays, renderMainView } from './utils';
-    import { setDelays, renderLoginView } from './utils';
-
+    import { renderLoginView } from './utils';
+    
     onMount(() => {
-        setDelays(delays);
         renderLoginView();
-        /*renderMainView(); */
 	});
 </script>
 
