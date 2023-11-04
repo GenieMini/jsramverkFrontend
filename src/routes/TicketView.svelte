@@ -11,6 +11,8 @@
     let editedTickets = [];
     const editedByClient = [];
 
+    let currentlyEditing = 0; // id of ticket
+
     onMount(() => {
         // Receive updates
         socket.on('ticket edit', function (_editedTickets) {
@@ -57,6 +59,8 @@
     // Open update tab
     async function openUpdateTicket(id) {
         addClientEdit(id);
+
+        currentlyEditing = id;
 
         let elem = document.getElementById(id);
         const oldCode = elem.innerText;
@@ -187,12 +191,12 @@
                 <td>{existingTicket.trainnumber}</td>
                 <td>{existingTicket.traindate}</td>
                 <td>
-                    {#if !editedTickets.includes(existingTicket._id)}
-                        <button on:click={() => openUpdateTicket(existingTicket._id)}>change</button>
-                        <button on:click={() => deleteTicket(existingTicket._id)}>del</button>
-                    {:else}
+                    {#if editedTickets.includes(existingTicket._id) || currentlyEditing !== 0}
                         <button disabled>change</button>
                         <button disabled>del</button>
+                    {:else}
+                        <button on:click={() => openUpdateTicket(existingTicket._id)}>change</button>
+                        <button on:click={() => deleteTicket(existingTicket._id)}>del</button>
                     {/if}
                 </td>
             </tr>
